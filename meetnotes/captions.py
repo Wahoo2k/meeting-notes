@@ -131,14 +131,14 @@ class CaptionWatcher(threading.Thread):
         super().__init__(daemon=True, name="captions")
         self.t0 = t0_monotonic
         self.poll = poll_seconds
-        self._stop = threading.Event()
+        self._stop_event = threading.Event()
         self.observations = []  # (t, speaker, text)
         self.found_container = False
         self.error = None
         self._last = {}
 
     def stop(self):
-        self._stop.set()
+        self._stop_event.set()
         self.join(timeout=5)
 
     def run(self):
@@ -150,7 +150,7 @@ class CaptionWatcher(threading.Thread):
         with auto.UIAutomationInitializerInThread():
             container = None
             next_search = 0.0
-            while not self._stop.is_set():
+            while not self._stop_event.is_set():
                 now = time.monotonic()
                 try:
                     if container is None and now >= next_search:
@@ -171,7 +171,7 @@ class CaptionWatcher(threading.Thread):
                 except Exception as e:
                     self.error = f"{type(e).__name__}: {e}"
                     container = None
-                self._stop.wait(self.poll)
+                self._stop_event.wait(self.poll)
 
 
 def dump_teams_tree(path, max_depth=MAX_SEARCH_DEPTH):

@@ -7,15 +7,15 @@ import sys
 import threading
 import time
 
-from .config import Config, app_dir
-from .detect import teams_call_active
+from .config import Config, data_dir
+from .detect import apps_using_mic, teams_call_active
 from .session import Session
 
 log = logging.getLogger("meetnotes")
 
 
 def _setup_logging():
-    path = os.path.join(app_dir(), "meetnotes.log")
+    path = os.path.join(data_dir(), "meetnotes.log")
     logging.basicConfig(
         filename=path,
         level=logging.INFO,
@@ -41,7 +41,7 @@ def _icon(recording: bool, busy: bool = False):
 class App:
     def __init__(self):
         self.cfg = Config.load()
-        self.work_dir = os.path.join(app_dir(), "recordings")
+        self.work_dir = os.path.join(data_dir(), "recordings")
         self.session = None
         self.manual = False
         self.paused = False
@@ -79,8 +79,13 @@ class App:
     # ---- background loops
     def _monitor(self):
         last_active = 0.0
+        last_users = None
         while not self._quit.is_set():
             try:
+                users = apps_using_mic()
+                if users != last_users:
+                    log.info("apps using mic: %s", users or "none")
+                    last_users = users
                 active = teams_call_active(self.cfg.teams_markers)
             except Exception as e:
                 log.warning("detect failed: %s", e)
@@ -133,6 +138,9 @@ class App:
         os.makedirs(self.cfg.output_dir, exist_ok=True)
         os.startfile(self.cfg.output_dir)  # noqa: windows only
 
+    def _open_logs(self, *_):
+        os.startfile(data_dir())  # noqa: windows only
+
     def _open_config(self, *_):
         subprocess.Popen(["notepad.exe", self.cfg.path])
 
@@ -164,6 +172,7 @@ class App:
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Open notes folder", self._open_folder),
             pystray.MenuItem("Settings", self._open_config),
+            pystray.MenuItem("Open log folder", self._open_logs),
             pystray.MenuItem("Quit", self._quit_app),
         )
         self.icon = pystray.Icon("meetnotes", _icon(False), "Meeting Notes", menu)
@@ -177,6 +186,12 @@ def main():
     if sys.platform != "win32":
         print("Meeting Notes runs on Windows.")
         return
+    # Load the Windows accessibility library once, up front. Loading it from two threads
+    # at the same time on first run corrupts its generated helper files.
+    try:
+        import uiautomation  # noqa: F401
+    except Exception:
+        log.exception("uiautomation failed to load")
     App().run()
 
 

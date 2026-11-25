@@ -22,7 +22,7 @@ No bot joins the call, no admin rights are needed, and no audio leaves the PC.
 2. Start a Teams test call (Settings > Devices > Make a test call, or a meeting with only you)
    and turn on live captions (More > Language and speech > Show live captions).
 3. Run `MeetingNotesTest.exe`. Talk during the 30 seconds.
-4. Open `probe_report.txt` and share its results.
+4. When it finishes, `probe_report.txt` opens in Notepad. Share its results.
 
 Only run the test on a call with no real work content. `probe_output\teams_tree.txt` lists
 what's in your Teams window (chat names and so on), so read it before sharing and remove anything sensitive.
@@ -31,7 +31,8 @@ what's in your Teams window (chat names and so on), so read it before sharing an
 
 1. Download `MeetingNotes.zip`, unzip it to a folder in your user profile, and run `MeetingNotes.exe`.
    A blue notes icon appears in the system tray (it may be in the ^ overflow).
-2. Right-click > Settings opens `config.json`:
+2. Right-click > Settings opens `config.json`. Settings, logs, recordings and the speech model live in
+   `%LOCALAPPDATA%\MeetingNotes` so they never sync to OneDrive (Right-click > Open log folder).
    - `output_dir`: folder for notes. Set it to the folder your Claude process watches.
    - `my_name`: how you appear in transcripts.
    - `model`: `small.en` by default. Use `base.en` if it's too slow, or `medium.en` for more accuracy.
@@ -54,7 +55,7 @@ how to turn them into a summary, decisions and tasks. Set `my_name` to your name
 - If live captions are off, other people show as "Other." You're always labeled correctly.
 - If you use speakers instead of a headset, the app removes most of the echo of other people
   from your mic track, but a headset gives the cleanest result.
-- A Teams update can change the caption layout. If names stop appearing, rerun the test and share `teams_tree.txt`.
+- A Teams update can change the caption layout. If names stop appearing, rerun the test and share `probe_output\teams_tree.txt` from the log folder.
 
 ## Building
 

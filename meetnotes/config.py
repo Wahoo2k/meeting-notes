@@ -12,6 +12,18 @@ def app_dir() -> str:
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+def data_dir() -> str:
+    """Local, non-synced folder for config, logs, recordings and models.
+
+    Documents is often redirected to OneDrive at work, and we don't want audio or
+    the speech model syncing there.
+    """
+    base = os.environ.get("LOCALAPPDATA") or os.path.join(os.path.expanduser("~"), ".local", "share")
+    path = os.path.join(base, "MeetingNotes")
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
 def default_output_dir() -> str:
     return os.path.join(os.path.expanduser("~"), "Documents", "meeting_notes")
 
@@ -23,7 +35,7 @@ class Config:
     # Whisper model: tiny.en, base.en, small.en, medium.en. Bigger = more accurate, slower.
     model: str = "small.en"
     # Folder holding downloaded models (copy a model here manually if downloads are blocked).
-    model_dir: str = field(default_factory=lambda: os.path.join(app_dir(), "models"))
+    model_dir: str = field(default_factory=lambda: os.path.join(data_dir(), "models"))
     # Start/stop recording automatically when Teams is using the microphone.
     auto_record: bool = True
     # Seconds Teams must release the mic before we treat the call as over.
@@ -41,7 +53,7 @@ class Config:
 
     @property
     def path(self) -> str:
-        return os.path.join(app_dir(), "config.json")
+        return os.path.join(data_dir(), "config.json")
 
     @classmethod
     def load(cls) -> "Config":

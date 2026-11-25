@@ -7,11 +7,11 @@ import sys
 import time
 import traceback
 
-from .config import app_dir
+from .config import app_dir, data_dir
 
 
 def main():
-    out_dir = os.path.join(app_dir(), "probe_output")
+    out_dir = os.path.join(data_dir(), "probe_output")
     os.makedirs(out_dir, exist_ok=True)
     report = []
 
@@ -19,6 +19,10 @@ def main():
         print(line)
         report.append(line)
 
+    try:
+        import uiautomation  # noqa: F401  (load once, before any threads)
+    except Exception as e:
+        print("uiautomation failed to load:", e)
     say("MEETING NOTES FEASIBILITY TEST")
     say(f"Windows: {platform.platform()}  Python: {sys.version.split()[0]}  CPUs: {os.cpu_count()}")
     say("Join a Teams call (a test call with yourself is fine) and turn on live captions.")
@@ -75,11 +79,15 @@ def main():
         say("[3] Recording FAILED:")
         say(traceback.format_exc())
 
-    path = os.path.join(app_dir(), "probe_report.txt")
+    path = os.path.join(data_dir(), "probe_report.txt")
     with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(report) + "\n")
     say()
     say(f"Done. Report saved to {path}")
+    try:
+        os.startfile(path)  # opens the report in Notepad
+    except Exception:
+        pass
     say("Send back probe_report.txt (and probe_output\\teams_tree.txt if captions said NO).")
     input("Press Enter to close.")
 
