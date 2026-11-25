@@ -44,6 +44,11 @@ and copy the folder into `models`.
 
 **Tray icon:** a red dot means recording, an amber dot means transcribing.
 
+## Summaries and tasks
+
+The app only writes transcripts. `CLAUDE_INSTRUCTIONS.md` (included in the zip) tells your work Claude
+how to turn them into a summary, decisions and tasks. Set `my_name` to your name so it knows which lines are yours.
+
 ## Limits
 
 - If live captions are off, other people show as "Other." You're always labeled correctly.
