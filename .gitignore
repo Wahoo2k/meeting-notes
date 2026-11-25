@@ -1,0 +1,9 @@
+__pycache__/
+build/
+dist/
+*.spec
+recordings/
+probe_output/
+models/
+config.json
+*.log

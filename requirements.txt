@@ -1,0 +1,7 @@
+faster-whisper==1.1.1
+soundcard==0.4.3
+numpy<2.3
+uiautomation==2.0.20
+psutil
+pystray==0.19.5
+Pillow
