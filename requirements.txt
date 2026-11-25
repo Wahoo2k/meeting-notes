@@ -5,3 +5,4 @@ uiautomation==2.0.20
 psutil
 pystray==0.19.5
 Pillow
+requests
